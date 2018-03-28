@@ -1,0 +1,124 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logicAppName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "metadata": {
+        "description": "Name of the Logic App."
+      }
+    },
+    "logicAppLocation": {
+      "type": "string",
+      "defaultValue": "westus",
+      "allowedValues": [
+        "[resourceGroup().location]",
+        "eastasia",
+        "southeastasia",
+        "centralus",
+        "eastus",
+        "eastus2",
+        "westus",
+        "northcentralus",
+        "southcentralus",
+        "northeurope",
+        "westeurope",
+        "japanwest",
+        "japaneast",
+        "brazilsouth",
+        "australiaeast",
+        "australiasoutheast",
+        "southindia",
+        "centralindia",
+        "westindia",
+        "canadacentral",
+        "canadaeast",
+        "uksouth",
+        "ukwest",
+        "westcentralus",
+        "westus2"
+      ],
+      "metadata": {
+        "description": "Location of the Logic App."
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "name": "[parameters('logicAppName')]",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[parameters('logicAppLocation')]",
+      "tags": {
+        "displayName": "LogicApp"
+      },
+      "apiVersion": "2016-06-01",
+      "properties": {
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "Response": {
+              "type": "Response",
+              "inputs": {
+                "statusCode": 200,
+                "headers": {
+                  "content-type": "application/xml"
+                },
+                "body": "@xml(json(concat('{\"ResultSets\":',body('Http')[0],'}')))"
+              },
+              "runAfter": {
+                "HTTP": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "HTTP": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "http://wso2training-restsamples.wso2apps.com/healthcare/ent",
+                "headers": {
+                  "content-type": "application/xml"
+                }
+              },
+              "runAfter": {}
+            }
+          },
+          "parameters": {},
+          "triggers": {
+            "request": {
+              "type": "Request",
+              "kind": "Http",
+              "inputs": {
+                "schema": [
+                  {
+                    "name": "henry parker",
+                    "hospital": "grand oak community hospital",
+                    "category": "ent",
+                    "availability": "9.00 a.m - 11.00 a.m",
+                    "fee": 4500
+                  },
+                  {
+                    "name": "abner jones",
+                    "hospital": "grand oak community hospital",
+                    "category": "ent",
+                    "availability": "8.00 a.m - 10.00 a.m",
+                    "fee": 6750
+                  }
+                ],
+                "method": "GET",
+                "relativePath": "/getvalue"
+              }
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {}
+        },
+        "parameters": {}
+      }
+    }
+  ],
+  "outputs": {}
+}
